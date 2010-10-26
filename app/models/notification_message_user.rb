@@ -5,4 +5,8 @@ class NotificationMessageUser < DomainModel
 
   validates_presence_of :end_user_id
   validates_presence_of :notification_message_id
+
+  def excerpt
+    self.notification_message ? self.notification_message.excerpt : nil
+  end
 end

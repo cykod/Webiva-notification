@@ -17,6 +17,7 @@ class Notification::AdminController < ModuleController
   register_cron :expire_messages, "NotificationMessage", :hours => [1]
 
   register_handler :members, :view,  "Notification::ManageUserController"
+  register_handler :user_segment, :fields, 'NotificationMessageUserSegmentField'
 
   public
 
