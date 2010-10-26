@@ -122,14 +122,18 @@ class NotificationMessage < DomainModel
     true
   end
 
-  def self.fetch_user_messages(user, type_id=nil, now=nil)
+  def self.fetch_user_messages(user, type_id, opts={})
     return [] unless user.id
 
-    now ||= Time.now
-    messages = NotificationMessage.for_type(type_id).valid_messages(now).messages_for_everyone.find :all, :include => :notification_message_users
-    messages += NotificationMessage.for_type(type_id).valid_messages(now).messages_for_user(user.id).find :all, :include => :notification_message_users
-    messages += NotificationMessage.for_type(type_id).valid_messages(now).messages_for_tags(user).find(:all, :include => :notification_message_users) unless user.tags.empty?
-    messages.reject{ |m| m.cleared?(user) }.sort{ |a,b| b.created_at <=> a.created_at }.uniq
+    limit = opts[:limit] || 10
+    now = opts[:now] || Time.now
+    order = opts[:order] || 'created_at DESC'
+    messages = NotificationMessage.for_type(type_id).valid_messages(now).messages_for_everyone.find :all, :include => :notification_message_users, :limit => limit, :order => order
+    messages += NotificationMessage.for_type(type_id).valid_messages(now).messages_for_user(user.id).find :all, :include => :notification_message_users, :limit => limit, :order => order
+    messages += NotificationMessage.for_type(type_id).valid_messages(now).messages_for_tags(user).find(:all, :include => :notification_message_users, :limit => limit, :order => order) unless user.tags.empty?
+    messages = messages.reject{ |m| m.cleared?(user) }.sort{ |a,b| b.created_at <=> a.created_at }.uniq
+    (1..(messages.size-limit)).each { |i| messages.pop }
+    messages
   end
 
   def self.expire_messages

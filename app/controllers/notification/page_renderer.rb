@@ -19,7 +19,7 @@ class Notification::PageRenderer < ParagraphRenderer
 
     @notifications = []
     if @type
-      @notifications = NotificationMessage.fetch_user_messages(myself, @type.id) if myself.id
+      @notifications = NotificationMessage.fetch_user_messages(myself, @type.id, :limit => @options.limit) if myself.id
       @notifications = NotificationMessage.for_type(@type.id).find(:all, :order => 'created_at DESC', :limit => 5) if editor? && @notifications.empty?
       @notifications.each { |n| n.view_type == 'once' ? n.clear(myself) : n.push_message_user(myself) } unless editor?
     end

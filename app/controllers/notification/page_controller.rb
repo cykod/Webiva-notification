@@ -6,7 +6,9 @@ class Notification::PageController < ParagraphController
   editor_for :notifications, :name => "Notifications", :feature => :notification_page_notifications
 
   class NotificationsOptions < HashModel
-    attributes :notification_type_id => nil
+    attributes :notification_type_id => nil, :limit => 5
+
+    integer_options :limit
 
     validates_presence_of :notification_type_id
 
@@ -19,7 +21,8 @@ class Notification::PageController < ParagraphController
     end
 
     options_form(
-                 fld(:notification_type_id, :select, :options => :notification_type_options)
+                 fld(:notification_type_id, :select, :options => :notification_type_options),
+                 fld(:limit, :text_field)
                  )
   end
 end
